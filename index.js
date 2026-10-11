@@ -1,20 +1,33 @@
-const fs = require('fs')
-const path = require('path')
+const express = require('express')
 
-const filePath = path.join(__dirname, "data.json")
-fs.readFile(filePath, "utf-8", (err, data) => {
-    if (err) throw err;
-    console.log(data)
+const app = express();
+
+app.use(express.json())
+
+
+
+app.use((req, res, next) => {
+    console.log(`${req.method} ${req.url}`)
+    next()
 })
 
-const newData = {
-    "id": 1024,
-    "isActive": true,
-    "username": "johndoe87",
-    "email": "john.doe@example.com",
-}
-
-fs.writeFile(filePath, JSON.stringify(newData, null, 2), (err) => {
-    if(err) throw err
-    console.log("changed")
+app.get("/", (req, res) => {
+    res.send("Working")
 })
+
+app.get("/user/:id", (req, res) => {
+    console.log(req.params.id)
+    res.send(`Id ye millla ${req.params.id}`)
+})
+
+app.get('/user', (req, res) => {
+    const { status } = req.query
+    res.send(`worked ${status}`)
+})
+
+app.use((err, req, res, next) => {
+    console.log(err.stack)
+    res.status(500).json({ error: "Something went wrong" })
+})
+
+app.listen(3000, () => console.log("Server running on 3000"))
